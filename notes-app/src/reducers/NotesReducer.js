@@ -60,6 +60,20 @@ export const NotesReducer = (state, { type, payload }) => {
           archive : state.archive.filter(({id})=> id!==payload.id)
           
         }
+
+      case 'ADD_TO_BIN':
+        return {
+          ...state,
+          bin: [...state.bin, state.notes.find(({id})=>id===payload.id)],
+          notes: state.notes.filter(({id})=> id!==payload.id)
+        }
+      
+      case "REMOVE_FROM_BIN":
+        return{
+          ...state,
+          bin: state.bin.filter(({id})=>id!=payload.id)
+        }
+
     default:
       return state;
   }
