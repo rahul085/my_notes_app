@@ -1,10 +1,14 @@
 import React from 'react'
+import {Routes,Route} from 'react-router-dom';
+import Home from './pages/home/Home';
+import Archive from './pages/archive/Archive';
 
 const App = () => {
   return (
-    <div>
-      <h1 className='text-2xl bg-blue-400 text-center '>Hello</h1>
-    </div>
+    <Routes>
+      <Route path='/' element={<Home/>}/>
+      <Route path="/archive" element={<Archive/>}/>
+    </Routes>
   )
 }
 
