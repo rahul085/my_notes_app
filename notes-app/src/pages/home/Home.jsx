@@ -5,7 +5,7 @@ import NotesCard from "../../components/notes-card/NotesCard";
 import { useNotes } from "../../context/notes-context";
 
 const Home = () => {
-  const { title, text, notes, archive, notesDispatch } = useNotes();
+  const { title, text, notes, archive,  notesDispatch } = useNotes();
 
   const onTitleChange = (e) => {
     notesDispatch({
@@ -42,7 +42,7 @@ const Home = () => {
   return (
     <>
       <Navbar />
-      <main className="flex gap-3">
+      <main className="flex gap-3 overflow-x-hidden">
         <Sidebar />
         <div className="flex flex-col  w-screen mt-7">
           <div className="flex flex-col w-113  relative self-center">
