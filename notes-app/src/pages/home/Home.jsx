@@ -5,7 +5,7 @@ import NotesCard from "../../components/notes-card/NotesCard";
 import { useNotes } from "../../context/notes-context";
 
 const Home = () => {
-  const { title, text, notes, archive,  notesDispatch } = useNotes();
+  const { title, text, notes, archive, isEditing, notesDispatch } = useNotes();
 
   const onTitleChange = (e) => {
     notesDispatch({
@@ -22,9 +22,16 @@ const Home = () => {
   };
 
   const onAddCick = () => {
-    notesDispatch({
-      type: "ADD_NOTE",
-    });
+    if (isEditing) {
+      notesDispatch({
+        type: "UPDATE_NOTE",
+      });
+    } else {
+      notesDispatch({
+        type: "ADD_NOTE",
+      });
+    }
+
     notesDispatch({
       type: "CLEAR_INPUT",
     });
@@ -35,16 +42,13 @@ const Home = () => {
   const otherNotes =
     notes?.length > 0 && notes.filter(({ isPinned }) => !isPinned);
 
-
-    console.log(archive);
-    
-    
   return (
     <>
       <Navbar />
       <main className="flex gap-3 overflow-x-hidden">
         <Sidebar />
         <div className="flex flex-col  w-screen mt-7">
+          <h1 className="font-bold text-center text-2xl">ADD NOTE</h1>
           <div className="flex flex-col w-113  relative self-center">
             <input
               onChange={onTitleChange}
@@ -66,8 +70,10 @@ const Home = () => {
               onClick={onAddCick}
               className="w-7 h-7 absolute bottom-0 right-0  bg-indigo-600 cursor-pointer text-slate-50 rounded-full"
             >
-              {" "}
-              <span className="material-icons">add</span>
+              
+              <span className="material-icons">
+                {isEditing ? "check" : "add"}
+              </span>
             </button>
           </div>
 
