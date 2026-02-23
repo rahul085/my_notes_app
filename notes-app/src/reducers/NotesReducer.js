@@ -74,6 +74,43 @@ export const NotesReducer = (state, { type, payload }) => {
           bin: state.bin.filter(({id})=>id!=payload.id)
         }
 
+      case "ADD_TO_IMPORTANT":
+        return{
+          ...state,
+          important:[...state.important, state.notes.find(({id})=> id===payload.id)]
+        }
+
+      case "REMOVE_FROM_IMPORTANT":
+        return{
+          ...state,
+          important:state.important.filter(({id})=>id!==payload.id)
+        }
+
+      case "EDIT":
+        const noteToEdit=state.notes.find(({id})=>id===payload.id);
+        return {
+          ...state,
+          title: noteToEdit.title,
+          text: noteToEdit.text,
+          isEditing: true,
+          editNoteId:payload.id
+        };
+
+      case "UPDATE_NOTE":
+        return{
+          ...state,
+          notes: state.notes.map((note)=>
+          note.id===state.editNoteId? {
+            ...note,
+            title:state.title,
+            text:state.text
+          }: note ),
+          title:"",
+          text:"",
+          isEditing: false,
+          editNoteId: null
+        };
+
     default:
       return state;
   }
