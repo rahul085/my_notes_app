@@ -37,16 +37,84 @@ const NotesCard = ({ id, title, text, isPinned }) => {
         });
   };
 
-  const onDeleteClick = (id) => {
-    !isNotesInBin
-      ? notesDispatch({
-          type: "ADD_TO_BIN",
-          payload: { id },
-        })
-      : notesDispatch({
+  //   const onDeleteClick = async (id) => {
+  //     // !isNotesInBin
+  //     //   ? notesDispatch({
+  //     //       type: "ADD_TO_BIN",
+  //     //       payload: { id },
+  //     //     })
+  //     //   : notesDispatch({
+  //     //       type: "REMOVE_FROM_BIN",
+  //     //       payload: { id },
+  //     //     });
+
+  //     if(isNotesInBin){
+  //         try{
+  //             // sending a delete request to spring boot.
+  //             const response=await fetch(`http://localhost:8000/api/notes/${id}`,
+  //                 {
+  //                     method:"DELETE"
+  //                 });
+  //             if(response.ok){
+  //                 // only if the delete is successfull , update the ui
+  //                 notesDispatch({
+  //                     type:"REMOVE_FROM_BIN",
+  //                     payload:{id}
+  //                 });
+
+  //             }
+  //         } catch(error){
+  //             console.error("Error deleting from Oracle:",error);
+  //         }
+  //     } else{
+  //         notesDispatch({
+  //             type:"ADD_TO_BIN",
+  //             payload:{id}
+  //         });
+  //     }
+  //   };
+
+  const onPermanentDelete = async (id) => {
+    try {
+      const response = await fetch(`http://localhost:8000/api/notes/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        // only if the delete is successfull , update the ui
+        notesDispatch({
           type: "REMOVE_FROM_BIN",
           payload: { id },
         });
+      }
+    } catch (error) {
+      console.error("Error deleting from Oracle:", error);
+    }
+  };
+
+  const onToggleBin = async (id, currentBinStatus) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8000/api/notes/${id}/toggle-bin`,
+        {
+          method: "PATCH",
+        },
+      );
+      if (response.ok) {
+        if (!currentBinStatus) {
+          notesDispatch({
+            type: "ADD_TO_BIN",
+            payload: { id },
+          });
+        } else {
+          notesDispatch({
+            type: "RESTORE_FROM_BIN",
+            payload: { id },
+          });
+        }
+      }
+    } catch (error) {
+      console.error("Failed to sync with oracle:", error);
+    }
   };
 
   const onBookmarkClick = (id) => {
@@ -61,11 +129,11 @@ const NotesCard = ({ id, title, text, isPinned }) => {
         });
   };
 
-  const onEditClick=(id)=>{
+  const onEditClick = (id) => {
     notesDispatch({
-        type:"EDIT",
-        payload: {id}
-    })
+      type: "EDIT",
+      payload: { id },
+    });
   };
 
   return (
@@ -116,37 +184,74 @@ const NotesCard = ({ id, title, text, isPinned }) => {
 
         <div className="flex justify-between mt-5 ">
           <div className="flex">
-            <button onClick={()=> onEditClick(id)}>
+            {
+                !isNotesInBin ? (
+                    <button onClick={() => onEditClick(id)}>
               <span className="material-icons-outlined  text-gray-400 cursor-pointer  hover:text-indigo-600 transition-colors">
                 edit
               </span>
             </button>
+                ):<></>
+            }
+            
           </div>
 
-
-         
           <div className="flex ">
-             {!isNotesInBin ? (
-            <button
-              onClick={() => onArchiveClick(id)}
-              className="cursor-pointer hover:text-indigo-600 transition-colors"
-            >
-              <span
-                className={`material-icons-outlined transition-colors
+            {!isNotesInBin ? (
+              <>
+                <button
+                  onClick={() => onArchiveClick(id)}
+                  className="cursor-pointer hover:text-indigo-600 transition-colors"
+                >
+                  <span
+                    className={`material-icons-outlined transition-colors
     ${isNotesInArchive ? "text-indigo-600" : "text-gray-400 hover:text-indigo-600"}`}
-              >
-                archive
-              </span>
-            </button>
-          ) : (
-            <></>
-          )}
+                  >
+                    archive
+                  </span>
+                </button>
 
-          <button onClick={() => onDeleteClick(id)} className="cursor-pointer">
-            <span className="material-icons-outlined hover:text-red-500 transition-colors">
-              delete
-            </span>
-          </button>
+                <button
+                  onClick={() => onToggleBin(id, isNotesInBin)}
+                  className="cursor-pointer"
+                >
+                  <span className="material-icons-outlined text-gray-400  hover:text-red-500 transition-colors">
+                    delete
+                  </span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => onToggleBin(id, isNotesInBin)}
+                  className="cursor-pointer mr-2 "
+                  title="restore"
+                >
+                  <span className="material-icons-outlined text-gray-400 hover:text-green-600 tranisiton-colors">
+                    restore_from_trash
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => onPermanentDelete(id)}
+                  title="Delete Forever"
+                  className="cursor-pointer"
+                >
+                  <span className="material-icons-outlined text-gray-400  hover:text-red-600">
+                    delete_forever
+                  </span>
+                </button>
+              </>
+            )}
+
+            {/* <button
+              onClick={() => onToggleBin(id, isNotesInBin)}
+              className="cursor-pointer"
+            >
+              <span className="material-icons-outlined hover:text-red-500 transition-colors">
+                {isNotesInBin ? "restore_from_trash" : "delete"}
+              </span>
+            </button> */}
           </div>
         </div>
       </div>
