@@ -19,7 +19,7 @@ export const NotesReducer = (state, { type, payload }) => {
         ...state,
         notes: [
           ...state.notes,
-          { title: state.title, text: state.text, id: uuid(), isPinned: false },
+          payload,
         ],
       };
 
@@ -100,16 +100,28 @@ export const NotesReducer = (state, { type, payload }) => {
         return{
           ...state,
           notes: state.notes.map((note)=>
-          note.id===state.editNoteId? {
-            ...note,
-            title:state.title,
-            text:state.text
-          }: note ),
+          note.id===state.editNoteId? payload: note ),
           title:"",
           text:"",
           isEditing: false,
           editNoteId: null
         };
+
+      case "INITIALIZE_NOTES":
+        return{
+          ...state,
+          notes: payload
+        }
+
+      case "RESTORE_FROM_BIN":
+        const noteToRestore=state.bin.find(({id})=>id===payload.id)
+        return{
+          ...state,
+          bin: state.bin.filter(({id})=>id!=payload.id),
+          notes:[...state.notes,{...noteToRestore,isPinned:false}]
+        };
+
+      
 
     default:
       return state;

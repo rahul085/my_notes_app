@@ -5,7 +5,7 @@ import NotesCard from "../../components/notes-card/NotesCard";
 import { useNotes } from "../../context/notes-context";
 
 const Home = () => {
-  const { title, text, notes, archive, isEditing, notesDispatch } = useNotes();
+  const { title, text, notes, isPinned, archive, isEditing, editNoteId, notesDispatch } = useNotes();
 
   const onTitleChange = (e) => {
     notesDispatch({
@@ -21,14 +21,36 @@ const Home = () => {
     });
   };
 
-  const onAddCick = () => {
+  const onAddCick = async () => {
+    const newNote={title,text,isPinned:false};
     if (isEditing) {
+        // send the updated data to the backend
+        const response =await fetch(`http://localhost:8000/api/notes/${editNoteId}`,
+            {
+                method:"PUT",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({id:editNoteId,title,text,isPinned}),
+            }
+            
+        );
+
+        const updatedNote=await response.json();
       notesDispatch({
         type: "UPDATE_NOTE",
+        payload: updatedNote
       });
     } else {
+        const response=await fetch("http://localhost:8000/api/notes",
+            {
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body:JSON.stringify(newNote)
+            }
+        );
+        const savedNote=await response.json();
       notesDispatch({
         type: "ADD_NOTE",
+        payload: savedNote
       });
     }
 
